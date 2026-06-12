@@ -1,15 +1,15 @@
 -- [[ MADE BY CHIẾN ĐO ]]
 -- Script Autoplayer Basically FNF - RenderStepped Ultimate Speed Version
--- Quét theo chu kỳ khung hình (FPS) - Khắc chế hoàn toàn bài hát nhịp độ cao
+-- Scans per frame cycle (FPS) - Completely counters high-tempo songs
 
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH SIÊU TỐC ĐỘ
+-- ULTRA SPEED CONFIGURATION
 local AutoplayerEnabled = true
-local HitThreshold = 35 -- Vùng quét rộng để bắt kịp các nốt rơi siêu nhanh
+local HitThreshold = 35 -- Wide scan radius to catch ultra-fast falling notes
 
 local KeyMapping = {
     ["Arrow1"] = Enum.KeyCode.A,
@@ -26,16 +26,16 @@ end
 
 print("Script loaded by CHIẾN ĐO - RenderStepped Mode Activated")
 
--- Mảng lưu trữ các kết nối RenderStepped để dễ quản lý hoặc hủy khi cần
+-- Array to store RenderStepped connections for easy management/disconnection
 local Connections = {}
 
 local function startUltraSpeedThread(arrowName, keyCode)
-    -- Hủy kết nối cũ nếu có để tránh trùng lặp luồng gây lag
+    -- Disconnect old connection if exists to avoid overlapping threads causing lag
     if Connections[arrowName] then
         Connections[arrowName]:Disconnect()
     end
     
-    -- Sử dụng RenderStepped chạy trực tiếp trên xung nhịp xử lý khung hình của Roblox
+    -- Uses RenderStepped running directly on Roblox's frame rate processing clock
     Connections[arrowName] = RunService.RenderStepped:Connect(function()
         if not AutoplayerEnabled then return end
         
@@ -52,11 +52,11 @@ local function startUltraSpeedThread(arrowName, keyCode)
                         local baseY = arrowBase.AbsolutePosition.Y
                         local diff = math.abs(noteY - baseY)
                         
-                        -- Vì tốc độ cực cao, nốt vừa chạm rìa hồng tâm (diff <= HitThreshold) là xử lý ngay
+                        -- High speed logic: process immediately when note hits the threshold edge
                         if diff <= HitThreshold then
                             note:SetAttribute("Processed", true)
                             
-                            -- Ép nhịp: Nhả phím cũ gối đầu phím mới không trễ 1 mili-giây
+                            -- Force hit: releases old key and presses new key with 0ms delay
                             VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
                             VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
                         end
@@ -68,14 +68,14 @@ local function startUltraSpeedThread(arrowName, keyCode)
     end)
 end
 
--- KÍCH HOẠT QUÉT THEO KHUNG HÌNH CHO 4 NÚT
+-- ACTIVATE FRAME-BY-FRAME SCANNING FOR 4 BUTTONS
 startUltraSpeedThread("Arrow1", KeyMapping["Arrow1"])
 startUltraSpeedThread("Arrow2", KeyMapping["Arrow2"])
 startUltraSpeedThread("Arrow3", KeyMapping["Arrow3"])
 startUltraSpeedThread("Arrow4", KeyMapping["Arrow4"])
 
 
--- [[ GIAO DIỆN MENU CHUẨN GU ĐEN ĐỎ ]]
+-- [[ MENU INTERFACE - BLACK & RED THEME ]]
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
@@ -126,15 +126,15 @@ SwitchSideBtn.Parent = MainFrame
 SwitchSideBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 SwitchSideBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
 SwitchSideBtn.Size = UDim2.new(0.8, 0, 0.25, 0)
-SwitchSideBtn.Text = "Đang chơi: Bên Trái"
+SwitchSideBtn.Text = "Playing: Left Side"
 SwitchSideBtn.TextColor3 = Color3.fromRGB(240, 240, 240)
 
 SwitchSideBtn.MouseButton1Click:Connect(function()
     if currentSide == "KeySync1" then
         currentSide = "KeySync2"
-        SwitchSideBtn.Text = "Đang chơi: Bên Phải"
+        SwitchSideBtn.Text = "Playing: Right Side"
     else
         currentSide = "KeySync1"
-        SwitchSideBtn.Text = "Đang chơi: Bên Trái"
+        SwitchSideBtn.Text = "Playing: Left Side"
     end
 end)
